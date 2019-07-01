@@ -13,49 +13,57 @@ entity sync_gen is
 end sync_gen;
 
 architecture struct of sync_gen is
-  signal hcnt   : unsigned (8 downto 0) := to_unsigned(511, 9);
-  signal vcnt   : unsigned (8 downto 0) := to_unsigned(511, 9);
-  signal vcnt_r : unsigned (8 downto 0) := to_unsigned(511, 9);
+  signal hcnt : unsigned(8 downto 0) := 9x"080";
+  signal vcnt : unsigned(8 downto 0) := 9x"0f8";
 
+  signal do_hsync : boolean;
 begin
-  hpos <= hcnt;
-  vpos <= vcnt_r;
-
-  process(clk)
+  hv_count : process(clk)
   begin
     if rising_edge(clk) then
       if cen = '1' then
-        if hcnt = 511 then
-          hcnt <= to_unsigned(128, 9);
-          vcnt_r <= vcnt;
+        -- horizontal counter counts $080 to $1ff = 384 (6Mhz/384 = 15.625 kHz)
+        if hcnt = 9x"1ff" then
+          hcnt <= 9x"080";
         else
           hcnt <= hcnt + 1;
         end if;
 
-        if hcnt = 175 then
-          if vcnt = 511 then
-            vcnt <= to_unsigned(248, 9);
+        -- vertical counter counts $0f8 to $1ff = 264 (15625/264 = 59.185 Hz)
+        if do_hsync then
+          if vcnt = 9x"1ff" then
+            vcnt <= 9x"0f8";
           else
             vcnt <= vcnt + 1;
           end if;
         end if;
+      end if;
+    end if;
+  end process;
 
-        if    hcnt = (175+ 0) then hsync <= '0';
-        elsif hcnt = (175+29) then hsync <= '1';
+  sync : process(clk)
+  begin
+    if rising_edge(clk) then
+      if cen = '1' then
+        if    hcnt = 9x"0af" then hsync <= '1';
+        elsif hcnt = 9x"0cf" then hsync <= '0';
         end if;
 
-        if    vcnt = 511 then vsync <= '0';
-        elsif vcnt = 250 then vsync <= '1';
+        if    hcnt = 9x"08f" then hblank <= '1';
+        elsif hcnt = 9x"0ef" then hblank <= '0';
         end if;
 
-        if    hcnt = (127+8+1) then hblank <= '1';
-        elsif hcnt = (255+8+1) then hblank <= '0';
-        end if;
-
-        if    vcnt = (495+1+0) then vblank <= '1';
-        elsif vcnt = (271+1+1) then vblank <= '0';
+        if do_hsync then
+          if    vcnt = 9x"1ef" then vblank <= '1';
+          elsif vcnt = 9x"10f" then vblank <= '0';
+          end if;
         end if;
       end if;
     end if;
   end process;
+
+  vsync <= not vcnt(8);
+  do_hsync <= (hcnt = 9x"0af");
+  hpos <= hcnt;
+  vpos <= vcnt;
 end architecture;
