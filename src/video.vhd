@@ -7,7 +7,6 @@ library pll;
 entity video is
   port(
     clk : in std_logic;
-    led : out std_logic_vector(7 downto 0);
     vga_hs, vga_vs : out std_logic;
     vga_r, vga_g, vga_b : out std_logic_vector(5 downto 0);
     vga_en : in std_logic

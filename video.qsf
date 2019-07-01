@@ -50,23 +50,6 @@ set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
 set_location_assignment PIN_V11 -to clk
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to clk
 
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led[0]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led[1]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led[2]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led[3]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led[4]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led[5]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led[6]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to led[7]
-set_location_assignment PIN_W15 -to led[0]
-set_location_assignment PIN_AA24 -to led[1]
-set_location_assignment PIN_V16 -to led[2]
-set_location_assignment PIN_V15 -to led[3]
-set_location_assignment PIN_AF26 -to led[4]
-set_location_assignment PIN_AE26 -to led[5]
-set_location_assignment PIN_Y16 -to led[6]
-set_location_assignment PIN_AA23 -to led[7]
-
 set_location_assignment PIN_AE17 -to vga_r[0]
 set_location_assignment PIN_AE20 -to vga_r[1]
 set_location_assignment PIN_AF20 -to vga_r[2]
