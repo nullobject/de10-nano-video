@@ -58,8 +58,8 @@ begin
         elsif hcnt = 9x"0cf" then hsync <= '0';
         end if;
 
-        if    hcnt = 9x"08f" then hblank <= '1';
-        elsif hcnt = 9x"0ef" then hblank <= '0';
+        if    hcnt = 9x"087" then hblank <= '1';
+        elsif hcnt = 9x"107" then hblank <= '0';
         end if;
 
         if do_hsync then
