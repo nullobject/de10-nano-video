@@ -4,11 +4,20 @@ use ieee.numeric_std.all;
 
 entity sync_gen is
   port(
+    -- clock
     clk : in std_logic;
+
+    -- clock enable
     cen : in std_logic;
+
+    -- horizontal and vertical position
+    hpos, vpos : out unsigned(8 downto 0);
+
+    -- horizontal and vertical sync
     hsync, vsync : out std_logic;
-    hblank, vblank : out std_logic;
-    hpos, vpos : out unsigned(8 downto 0)
+
+    -- horizontal and vertical blank
+    hblank, vblank : out std_logic
   );
 end sync_gen;
 
