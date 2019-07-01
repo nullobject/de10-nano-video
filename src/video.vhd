@@ -21,7 +21,7 @@ architecture arch of video is
   signal video_hblank, video_vblank : std_logic;
   signal video_hpos, video_vpos : unsigned(8 downto 0);
 
-  signal blank : std_logic;
+  signal video_on : std_logic;
 begin
   my_pll : entity pll.pll
   port map(
@@ -43,10 +43,10 @@ begin
     vpos       => video_vpos
   );
 
-  blank <= not (video_hblank or video_vblank);
+  video_on <= video_hblank and video_vblank;
   vga_hs <= not (video_hsync xor video_vsync);
   vga_vs <= '1';
-  vga_r <= "111111" when blank = '0' and ((video_hpos(2 downto 0) = "000") or (video_vpos(2 downto 0) = "000")) else "ZZZZZZ";
-  vga_g <= "111111" when blank = '0' and video_hpos(4) = '1' else "ZZZZZZ";
-  vga_b <= "111111" when blank = '0' and video_vpos(4) = '1' else "ZZZZZZ";
+  vga_r <= "111111" when video_on = '1' and ((video_hpos(2 downto 0) = "000") or (video_vpos(2 downto 0) = "000")) else "ZZZZZZ";
+  vga_g <= "111111" when video_on = '1' and video_hpos(4) = '1' else "ZZZZZZ";
+  vga_b <= "111111" when video_on = '1' and video_vpos(4) = '1' else "ZZZZZZ";
 end arch;

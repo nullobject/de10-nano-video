@@ -23,29 +23,28 @@ end sync_gen;
 
 architecture struct of sync_gen is
   signal hcnt : unsigned(8 downto 0) := 9x"080";
-  signal vcnt : unsigned(8 downto 0) := 9x"0f8";
-
-  signal do_hsync : boolean;
+  signal vcnt : unsigned(8 downto 0) := 9x"0fa";
 begin
-  hv_count : process(clk)
+  -- horizontal counter counts $080 to $1ff = 384 (6MHz/384 = 15.625kHz)
+  h_counter : process(clk)
   begin
     if rising_edge(clk) then
-      if cen = '1' then
-        -- horizontal counter counts $080 to $1ff = 384 (6Mhz/384 = 15.625 kHz)
-        if hcnt = 9x"1ff" then
-          hcnt <= 9x"080";
-        else
-          hcnt <= hcnt + 1;
-        end if;
+      if hcnt = 9x"1ff" then -- 511
+        hcnt <= 9x"080"; -- 128
+      else
+        hcnt <= hcnt + 1;
+      end if;
+    end if;
+  end process;
 
-        -- vertical counter counts $0f8 to $1ff = 264 (15625/264 = 59.185 Hz)
-        if do_hsync then
-          if vcnt = 9x"1ff" then
-            vcnt <= 9x"0f8";
-          else
-            vcnt <= vcnt + 1;
-          end if;
-        end if;
+  -- vertical counter counts $0fa to $1ff = 261 (15.625KHz/261 = 59.866Hz)
+  v_counter : process(clk)
+  begin
+    if rising_edge(clk) and hcnt = 9x"1ff" then
+      if vcnt = 9x"1ff" then -- 511
+        vcnt <= 9x"0fa"; -- 250
+      else
+        vcnt <= vcnt + 1;
       end if;
     end if;
   end process;
@@ -53,26 +52,26 @@ begin
   sync : process(clk)
   begin
     if rising_edge(clk) then
-      if cen = '1' then
-        if    hcnt = 9x"0af" then hsync <= '1';
-        elsif hcnt = 9x"0cf" then hsync <= '0';
-        end if;
+      if hcnt(2 downto 0) = "111" then
+        hblank <= hcnt(8);
 
-        if    hcnt = 9x"08f" then hblank <= '1';
-        elsif hcnt = 9x"0ef" then hblank <= '0';
-        end if;
-
-        if do_hsync then
-          if    vcnt = 9x"1ef" then vblank <= '1';
-          elsif vcnt = 9x"10f" then vblank <= '0';
-          end if;
-        end if;
+        case vcnt is
+          when 9x"110" => vblank <= '1'; -- 272
+          when 9x"1f0" => vblank <= '0'; -- 496
+          when 9x"1fb" => vsync <= '1';  -- 507
+          when 9x"1fe" => vsync <= '0';  -- 510
+          when others => null;
+        end case;
       end if;
+
+      case hcnt is
+        when 9x"0b2" => hsync <= '1'; -- 178
+        when 9x"0ce" => hsync <= '0'; -- 206
+        when others => null;
+      end case;
     end if;
   end process;
 
-  vsync <= not vcnt(8);
-  do_hsync <= (hcnt = 9x"0af");
   hpos <= hcnt;
   vpos <= vcnt;
 end architecture;
