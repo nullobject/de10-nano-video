@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 library pll;
 
 entity video is
-  port(
+  port (
     clk : in std_logic;
     vga_hs, vga_vs : out std_logic;
     vga_r, vga_g, vga_b : out std_logic_vector(5 downto 0);
@@ -14,8 +14,7 @@ entity video is
 end video;
 
 architecture arch of video is
-  signal pll_clk_12 : std_logic;
-  signal pll_locked : std_logic;
+  signal clk_6 : std_logic;
 
   signal video_hsync, video_vsync : std_logic;
   signal video_hblank, video_vblank : std_logic;
@@ -24,23 +23,23 @@ architecture arch of video is
   signal video_on : std_logic;
 begin
   my_pll : entity pll.pll
-  port map(
+  port map (
     refclk   => clk,
     rst      => '0',
-    outclk_0 => pll_clk_12,
-    locked   => pll_locked
+    outclk_0 => clk_6,
+    locked   => open
   );
 
   sync_gen : entity work.sync_gen
-  port map(
-    clk        => pll_clk_12,
-    cen        => '1',
-    hsync      => video_hsync,
-    vsync      => video_vsync,
-    hblank     => video_hblank,
-    vblank     => video_vblank,
-    hpos       => video_hpos,
-    vpos       => video_vpos
+  port map (
+    clk    => clk_6,
+    cen    => '1',
+    hsync  => video_hsync,
+    vsync  => video_vsync,
+    hblank => video_hblank,
+    vblank => video_vblank,
+    hpos   => video_hpos,
+    vpos   => video_vpos
   );
 
   video_on <= not (video_hblank or video_vblank);
